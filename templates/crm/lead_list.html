@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Leads{% endblock %}
+
+{% block content %}
+<h1>Leads</h1>
+<p><a href="{% url 'crm:lead-create' empresa.id %}">Novo lead</a></p>
+<ul>
+    {% for lead in leads %}
+        <li><a href="{% url 'crm:lead-detail' empresa.id lead.id %}">{{ lead.nome }}</a> - {{ lead.get_status_display }}</li>
+    {% empty %}
+        <li>Nenhum lead cadastrado.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

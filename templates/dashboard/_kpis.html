@@ -1,0 +1,39 @@
+<section>
+    <h2>Indicadores principais</h2>
+    <dl>
+        <dt>Pedidos do dia</dt>
+        <dd>{{ kpis.pedidos_do_dia }}</dd>
+        <dt>Receita do mes</dt>
+        <dd>{{ kpis.receita_do_mes }}</dd>
+        <dt>Ticket medio</dt>
+        <dd>{{ kpis.ticket_medio }}</dd>
+        <dt>Pedidos pendentes</dt>
+        <dd>{{ kpis.pedidos_pendentes }}</dd>
+        <dt>Clientes ativos</dt>
+        <dd>{{ kpis.clientes_ativos }}</dd>
+        <dt>Oportunidades abertas</dt>
+        <dd>{{ kpis.oportunidades_abertas }}</dd>
+    </dl>
+</section>
+
+<section>
+    <h2>Produtos mais vendidos</h2>
+    <ul>
+        {% for produto in kpis.produtos_mais_vendidos %}
+            <li>{{ produto.produto__nome }} - {{ produto.quantidade }}</li>
+        {% empty %}
+            <li>Nenhum produto vendido no mes.</li>
+        {% endfor %}
+    </ul>
+</section>
+
+<section>
+    <h2>Vendedores com maior receita</h2>
+    <ul>
+        {% for vendedor in kpis.vendedores_maior_receita %}
+            <li>{{ vendedor.vendedor__username }} - {{ vendedor.receita }}</li>
+        {% empty %}
+            <li>Nenhuma receita confirmada no mes.</li>
+        {% endfor %}
+    </ul>
+</section>

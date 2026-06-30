@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}{{ lead.nome }}{% endblock %}
+
+{% block content %}
+<h1>{{ lead.nome }}</h1>
+<p>{{ lead.email }} {{ lead.telefone }}</p>
+<p>Status: {{ lead.get_status_display }}</p>
+{% if not lead.cliente_convertido_id %}
+    <form method="post" action="{% url 'crm:lead-convert' empresa.id lead.id %}">
+        {% csrf_token %}
+        <button type="submit">Converter em cliente</button>
+    </form>
+{% endif %}
+
+<h2>Historico</h2>
+<p><a href="{% url 'crm:historico-create' empresa.id %}">Registrar contato</a></p>
+<ul>
+    {% for historico in historicos %}
+        <li>{{ historico.realizado_em }} - {{ historico.resumo }}</li>
+    {% empty %}
+        <li>Nenhum contato registrado.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

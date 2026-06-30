@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load whatsapp_links %}
+
+{% block title %}Workspace comercial{% endblock %}
+
+{% block content %}
+<h1>Workspace comercial</h1>
+
+<section>
+    <h2>Cliente</h2>
+    <p><strong>{{ cliente.nome }}</strong></p>
+    <p>{{ cliente.email }} {{ cliente.telefone }}</p>
+    <p>{{ cliente.observacoes }}</p>
+    {% whatsapp_cliente cliente as cliente_whatsapp_url %}
+    {% whatsapp_follow_up cliente as follow_up_whatsapp_url %}
+    <p><a href="{{ cliente_whatsapp_url }}">Mensagem para cliente</a></p>
+    <p><a href="{{ follow_up_whatsapp_url }}">Mensagem de follow-up</a></p>
+</section>
+
+<section>
+    <h2>Status da oportunidade</h2>
+    {% if oportunidade %}
+        <p>{{ oportunidade.titulo }} - {{ oportunidade.get_status_display }}</p>
+        <p>Vendedor: {{ oportunidade.vendedor }}</p>
+        <p>Valor estimado: {{ oportunidade.valor_estimado }}</p>
+    {% else %}
+        <p>Nenhuma oportunidade aberta para este cliente.</p>
+    {% endif %}
+</section>
+
+<section>
+    <h2>Produtos relacionados</h2>
+    <ul>
+        {% for produto in produtos %}
+            {% whatsapp_produto produto as produto_whatsapp_url %}
+            <li>{{ produto.nome }} - {{ produto.preco }} <a href="{{ produto_whatsapp_url }}">Compartilhar produto</a></li>
+        {% empty %}
+            <li>Nenhum produto ativo cadastrado.</li>
+        {% endfor %}
+    </ul>
+</section>
+
+<section>
+    <h2>Carrinho/pedido</h2>
+    {% if carrinho_itens %}
+        <ul>
+            {% for item in carrinho_itens %}
+                <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Nenhum item em carrinho ou pedido nesta fase.</p>
+    {% endif %}
+</section>
+
+<section>
+    <h2>Historico comercial</h2>
+    <ul>
+        {% for historico in historicos %}
+            <li>{{ historico.realizado_em }} - {{ historico.get_tipo_display }} - {{ historico.resumo }}</li>
+        {% empty %}
+            <li>Nenhum contato registrado.</li>
+        {% endfor %}
+    </ul>
+</section>
+
+<section>
+    <h2>Proxima acao</h2>
+    <ul>
+        {% for acao in proximas_acoes %}
+            <li>{{ acao.data_prevista }} - {{ acao.descricao }} - {{ acao.oportunidade.titulo }}</li>
+        {% empty %}
+            <li>Nenhuma proxima acao pendente.</li>
+        {% endfor %}
+    </ul>
+</section>
+
+<section>
+    <h2>Pedidos anteriores</h2>
+    {% if pedidos_anteriores %}
+        <ul>
+            {% for pedido in pedidos_anteriores %}
+                <li>{{ pedido }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Nenhum pedido anterior disponivel nesta fase.</p>
+    {% endif %}
+</section>
+
+<section>
+    <h2>Oportunidades do cliente</h2>
+    <ul>
+        {% for item in oportunidades %}
+            <li>{{ item.titulo }} - {{ item.get_status_display }}</li>
+        {% empty %}
+            <li>Nenhuma oportunidade cadastrada.</li>
+        {% endfor %}
+    </ul>
+</section>
+{% endblock %}

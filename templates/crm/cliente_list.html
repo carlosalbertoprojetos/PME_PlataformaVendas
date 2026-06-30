@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Clientes{% endblock %}
+
+{% block content %}
+<h1>Clientes</h1>
+<p><a href="{% url 'crm:cliente-create' empresa.id %}">Novo cliente</a></p>
+<ul>
+    {% for cliente in clientes %}
+        <li><a href="{% url 'crm:cliente-detail' empresa.id cliente.id %}">{{ cliente.nome }}</a></li>
+    {% empty %}
+        <li>Nenhum cliente cadastrado.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

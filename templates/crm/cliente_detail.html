@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load whatsapp_links %}
+
+{% block title %}{{ cliente.nome }}{% endblock %}
+
+{% block content %}
+<h1>{{ cliente.nome }}</h1>
+<p>{{ cliente.email }} {{ cliente.telefone }}</p>
+<p>{{ cliente.observacoes }}</p>
+{% whatsapp_cliente cliente as cliente_whatsapp_url %}
+{% whatsapp_follow_up cliente as follow_up_whatsapp_url %}
+<p><a href="{{ cliente_whatsapp_url }}">Mensagem para cliente</a></p>
+<p><a href="{{ follow_up_whatsapp_url }}">Mensagem de follow-up</a></p>
+
+<h2>Oportunidades</h2>
+<ul>
+    {% for oportunidade in oportunidades %}
+        <li><a href="{% url 'crm:oportunidade-detail' empresa.id oportunidade.id %}">{{ oportunidade.titulo }}</a></li>
+    {% empty %}
+        <li>Nenhuma oportunidade.</li>
+    {% endfor %}
+</ul>
+
+<h2>Historico</h2>
+<p><a href="{% url 'crm:historico-create' empresa.id %}">Registrar contato</a></p>
+<ul>
+    {% for historico in historicos %}
+        <li>{{ historico.realizado_em }} - {{ historico.resumo }}</li>
+    {% empty %}
+        <li>Nenhum contato registrado.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

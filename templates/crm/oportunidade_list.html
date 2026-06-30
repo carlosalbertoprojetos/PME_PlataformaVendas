@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Oportunidades{% endblock %}
+
+{% block content %}
+<h1>Oportunidades</h1>
+<p><a href="{% url 'crm:oportunidade-create' empresa.id %}">Nova oportunidade</a></p>
+<ul>
+    {% for oportunidade in oportunidades %}
+        <li><a href="{% url 'crm:oportunidade-detail' empresa.id oportunidade.id %}">{{ oportunidade.titulo }}</a> - {{ oportunidade.cliente.nome }}</li>
+    {% empty %}
+        <li>Nenhuma oportunidade cadastrada.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

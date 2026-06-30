@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}PME Plataforma{% endblock %}</title>
+</head>
+<body>
+    <main>
+        {% if request.billing_bloqueio %}
+            <p>Assinatura {{ request.billing_bloqueio.get_status_display }}. Algumas acoes podem ser limitadas.</p>
+        {% endif %}
+        {% if request.billing_limites %}
+            {% for recurso, limite in request.billing_limites.items %}
+                {% if limite.atingido %}
+                    <p>{{ limite.aviso }}</p>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Recomendacoes comerciais{% endblock %}
+
+{% block content %}
+<h1>Recomendacoes comerciais</h1>
+
+<section>
+    <h2>Alertas comerciais</h2>
+    <ul>
+        {% for alerta in recomendacoes.alertas_comerciais %}
+            <li>{{ alerta.titulo }} - {{ alerta.severidade }} - {{ alerta.motivo }}</li>
+        {% empty %}
+            <li>Nenhum alerta comercial no momento.</li>
+        {% endfor %}
+    </ul>
+</section>
+
+<section>
+    <h2>Score de oportunidade</h2>
+    <ul>
+        {% for item in recomendacoes.scores_oportunidade %}
+            <li>{{ item.titulo }} - score {{ item.score }} - {{ item.motivo }}</li>
+        {% empty %}
+            <li>Nenhuma oportunidade aberta.</li>
+        {% endfor %}
+    </ul>
+</section>
+
+<section>
+    <h2>Produtos em risco de ruptura</h2>
+    <ul>
+        {% for item in recomendacoes.produtos_risco_ruptura %}
+            <li>{{ item.titulo }} - {{ item.motivo }}</li>
+        {% empty %}
+            <li>Nenhum produto em risco de ruptura pelas regras atuais.</li>
+        {% endfor %}
+    </ul>
+</section>
+
+<section>
+    <h2>Clientes sem recompra</h2>
+    <ul>
+        {% for item in recomendacoes.clientes_sem_recompra %}
+            <li>{{ item.titulo }} - {{ item.motivo }}</li>
+        {% empty %}
+            <li>Nenhum cliente sem recompra pelas regras atuais.</li>
+        {% endfor %}
+    </ul>
+</section>
+
+<section>
+    <h2>Produtos com alta saida</h2>
+    <ul>
+        {% for item in recomendacoes.produtos_alta_saida %}
+            <li>{{ item.titulo }} - {{ item.motivo }}</li>
+        {% empty %}
+            <li>Nenhum produto com alta saida pelas regras atuais.</li>
+        {% endfor %}
+    </ul>
+</section>
+
+<section>
+    <h2>Sugestoes de follow-up</h2>
+    <ul>
+        {% for item in recomendacoes.sugestoes_follow_up %}
+            <li>{{ item.titulo }} - {{ item.motivo }}</li>
+        {% empty %}
+            <li>Nenhuma sugestao de follow-up no momento.</li>
+        {% endfor %}
+    </ul>
+</section>
+{% endblock %}

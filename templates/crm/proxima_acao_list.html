@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Proximas acoes{% endblock %}
+
+{% block content %}
+<h1>Proximas acoes</h1>
+<p><a href="{% url 'crm:proxima-acao-create' empresa.id %}">Nova proxima acao</a></p>
+<ul>
+    {% for acao in proximas_acoes %}
+        <li>{{ acao.data_prevista }} - {{ acao.descricao }} - {{ acao.oportunidade.titulo }}</li>
+    {% empty %}
+        <li>Nenhuma proxima acao cadastrada.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Plano da empresa{% endblock %}
+
+{% block content %}
+<h1>Plano da empresa</h1>
+
+<section>
+    <h2>Assinatura</h2>
+    <p>Plano atual: {{ assinatura.plano.nome }}</p>
+    <p>Status: {{ assinatura.get_status_display }}</p>
+    <p>Gateway preferido: {{ assinatura.gateway_preferido|default:"Nao configurado" }}</p>
+</section>
+
+<section>
+    <h2>Limites</h2>
+    <dl>
+        {% for recurso, limite in limites.items %}
+            <dt>{{ recurso }}</dt>
+            <dd>{{ limite.usado }}/{{ limite.limite }}{% if limite.atingido %} - limite atingido{% endif %}</dd>
+        {% endfor %}
+    </dl>
+</section>
+
+<section>
+    <h2>Administrar plano</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Salvar plano</button>
+    </form>
+</section>
+{% endblock %}

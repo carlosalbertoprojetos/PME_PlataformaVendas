@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}{{ produto.nome }}{% endblock %}
+
+{% block content %}
+<h1>{{ produto.nome }}</h1>
+<p>{{ produto.descricao }}</p>
+<p>{{ produto.preco }}</p>
+<p><a href="{{ whatsapp_produto_url }}">Compartilhar produto</a></p>
+{% endblock %}

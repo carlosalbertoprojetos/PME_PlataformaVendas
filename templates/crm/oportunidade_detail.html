@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}{{ oportunidade.titulo }}{% endblock %}
+
+{% block content %}
+<h1>{{ oportunidade.titulo }}</h1>
+<p>Cliente: {{ oportunidade.cliente.nome }}</p>
+<p>Vendedor: {{ oportunidade.vendedor }}</p>
+<p>Status: {{ oportunidade.get_status_display }}</p>
+<p>Valor estimado: {{ oportunidade.valor_estimado }}</p>
+
+<h2>Proximas acoes</h2>
+<p><a href="{% url 'crm:proxima-acao-create' empresa.id %}">Nova proxima acao</a></p>
+<ul>
+    {% for acao in proximas_acoes %}
+        <li>{{ acao.data_prevista }} - {{ acao.descricao }}</li>
+    {% empty %}
+        <li>Nenhuma proxima acao.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
