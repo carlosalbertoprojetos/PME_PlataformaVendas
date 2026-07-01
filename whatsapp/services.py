@@ -6,6 +6,8 @@ from whatsapp.models import WhatsAppTemplateConfig
 
 
 WHATSAPP_BASE_URL = "https://wa.me/"
+MIN_DIGITOS_TELEFONE = 10
+MAX_DIGITOS_TELEFONE = 15
 
 
 def get_whatsapp_config(empresa):
@@ -16,6 +18,15 @@ def get_whatsapp_config(empresa):
 def gerar_wa_me_link(mensagem, telefone=""):
     destino = "".join(ch for ch in str(telefone or "") if ch.isdigit())
     return f"{WHATSAPP_BASE_URL}{destino}?text={quote(str(mensagem))}"
+
+
+def sanitizar_telefone_whatsapp(telefone):
+    return "".join(ch for ch in str(telefone or "") if ch.isdigit())
+
+
+def telefone_whatsapp_valido(telefone):
+    destino = sanitizar_telefone_whatsapp(telefone)
+    return MIN_DIGITOS_TELEFONE <= len(destino) <= MAX_DIGITOS_TELEFONE
 
 
 def render_template(template, contexto):
@@ -30,6 +41,55 @@ class _SafeFormatDict(dict):
 
 def absolute_url(request, url_name, *args):
     return request.build_absolute_uri(reverse(url_name, args=args))
+
+
+def gerar_mensagem_recomendacao_whatsapp(recomendacao):
+    tipo = recomendacao.get("tipo", "")
+    cliente = recomendacao.get("cliente")
+    oportunidade = recomendacao.get("oportunidade")
+    pedido = recomendacao.get("pedido")
+    produto_nome = recomendacao.get("produto_nome") or recomendacao.get("titulo")
+    cliente_nome = getattr(cliente, "nome", recomendacao.get("cliente_nome", "cliente"))
+    motivo = recomendacao.get("motivo", "")
+
+    if tipo in {"cliente_sem_recompra", "alerta_recompra"}:
+        return (
+            f"Ola {cliente_nome}, tudo bem? Sentimos sua falta por aqui. "
+            f"Podemos te ajudar com uma nova compra? Motivo do contato: {motivo}"
+        )
+    if tipo in {"follow_up", "alerta_follow_up"}:
+        titulo = getattr(oportunidade, "titulo", recomendacao.get("titulo", "sua oportunidade"))
+        return (
+            f"Ola {cliente_nome}, tudo bem? Estou passando para dar continuidade em {titulo}. "
+            f"Motivo do contato: {motivo}"
+        )
+    if tipo == "pedido_pendente":
+        pedido_id = getattr(pedido, "id", recomendacao.get("pedido_id", ""))
+        return (
+            f"Ola {cliente_nome}, tudo bem? Seu pedido {pedido_id} esta pendente. "
+            f"Podemos seguir com ele? Motivo do contato: {motivo}"
+        )
+    if tipo in {"produto_recomendado", "produto_alta_saida", "risco_ruptura", "alerta_alta_saida", "alerta_ruptura"}:
+        return (
+            f"Ola {cliente_nome}, tudo bem? Temos uma recomendacao comercial para voce: "
+            f"{produto_nome}. Motivo do contato: {motivo}"
+        )
+    if tipo in {"score_oportunidade", "alerta_oportunidade_quente"}:
+        titulo = getattr(oportunidade, "titulo", recomendacao.get("titulo", "sua oportunidade"))
+        return (
+            f"Ola {cliente_nome}, tudo bem? Vi uma boa oportunidade para seguirmos com {titulo}. "
+            f"Motivo do contato: {motivo}"
+        )
+    return f"Ola {cliente_nome}, tudo bem? Motivo do contato: {motivo}"
+
+
+def gerar_link_recomendacao_whatsapp(recomendacao, telefone=""):
+    cliente = recomendacao.get("cliente")
+    pedido = recomendacao.get("pedido")
+    destino = telefone or getattr(cliente, "telefone", "") or getattr(getattr(pedido, "cliente", None), "telefone", "")
+    if not telefone_whatsapp_valido(destino):
+        return ""
+    return gerar_wa_me_link(gerar_mensagem_recomendacao_whatsapp(recomendacao), destino)
 
 
 def gerar_link_catalogo(request, empresa, telefone=""):

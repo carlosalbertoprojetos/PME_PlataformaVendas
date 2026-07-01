@@ -1,0 +1,11 @@
+<div class="section-header">
+    <div>
+        <h2>{{ title }}</h2>
+        {% if subtitle %}
+            <p>{{ subtitle }}</p>
+        {% endif %}
+    </div>
+    {% if action_url and action_label %}
+        {% include "components/_action_button.html" with href=action_url label=action_label variant="secondary" %}
+    {% endif %}
+</div>

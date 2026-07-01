@@ -2,6 +2,7 @@ from django import forms
 
 from crm.models import Cliente, HistoricoContato, Lead, Oportunidade, ProximaAcao
 from empresas.models import EmpresaMembership
+from vendas.models import Pedido
 
 
 class EmpresaScopedFormMixin:
@@ -78,14 +79,24 @@ class HistoricoContatoForm(EmpresaScopedFormMixin, forms.ModelForm):
 class ProximaAcaoForm(EmpresaScopedFormMixin, forms.ModelForm):
     class Meta:
         model = ProximaAcao
-        fields = ["oportunidade", "vendedor", "descricao", "data_prevista", "status"]
+        fields = [
+            "cliente",
+            "oportunidade",
+            "pedido",
+            "vendedor",
+            "descricao",
+            "data_prevista",
+            "status",
+        ]
         widgets = {
             "data_prevista": forms.DateInput(attrs={"type": "date"}),
         }
 
     def __init__(self, *args, empresa, usuario=None, **kwargs):
         super().__init__(*args, empresa=empresa, usuario=usuario, **kwargs)
+        self.fields["cliente"].queryset = Cliente.objects.da_empresa(empresa).filter(ativo=True)
         self.fields["oportunidade"].queryset = Oportunidade.objects.da_empresa(empresa)
+        self.fields["pedido"].queryset = Pedido.objects.da_empresa(empresa)
         self.fields["vendedor"].queryset = self._usuarios_da_empresa()
 
     def _usuarios_da_empresa(self):

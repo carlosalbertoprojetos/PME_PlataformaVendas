@@ -1,0 +1,13 @@
+<section>
+    <h2>Proxima acao</h2>
+    <p><a href="{{ criar_proxima_acao_url }}">Criar</a></p>
+
+    <h3>Hoje</h3>
+    {% include "crm/workspace/_proxima_acao_grupo.html" with acoes=acoes_hoje vazio="Nenhuma acao para hoje." %}
+
+    <h3>Atrasada</h3>
+    {% include "crm/workspace/_proxima_acao_grupo.html" with acoes=acoes_atrasadas vazio="Nenhuma acao atrasada." %}
+
+    <h3>Agendada</h3>
+    {% include "crm/workspace/_proxima_acao_grupo.html" with acoes=acoes_agendadas vazio="Nenhuma acao agendada." %}
+</section>

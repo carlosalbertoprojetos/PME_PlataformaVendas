@@ -1,0 +1,31 @@
+{% load whatsapp_links %}
+<section>
+    <h2>Produtos</h2>
+    <h3>Mais comprados</h3>
+    <ul>
+        {% for produto in produtos_mais_comprados %}
+            <li>{{ produto.nome }} - {{ produto.quantidade }}</li>
+        {% empty %}
+            <li>Nenhum produto comprado por este cliente.</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Sugestoes</h3>
+    <ul>
+        {% for sugestao in produtos_sugeridos %}
+            <li>{{ sugestao.titulo }} - {{ sugestao.motivo }}</li>
+        {% empty %}
+            <li>Nenhuma sugestao de produto no momento.</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Produtos relacionados</h3>
+    <ul>
+        {% for produto in produtos %}
+            {% whatsapp_produto produto as produto_whatsapp_url %}
+            <li>{{ produto.nome }} - {{ produto.preco }} <a href="{{ produto_whatsapp_url }}">Compartilhar produto</a></li>
+        {% empty %}
+            <li>Nenhum produto ativo cadastrado.</li>
+        {% endfor %}
+    </ul>
+</section>

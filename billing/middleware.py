@@ -1,4 +1,4 @@
-from billing.services import assinatura_bloqueada, avaliar_limites
+from billing.services import assinatura_bloqueada, avaliar_limites_leve
 from core.tenant import user_can_access_empresa
 from empresas.models import Empresa
 
@@ -19,5 +19,5 @@ class BillingLimitMiddleware:
             if empresa is not None and user_can_access_empresa(request.user, empresa):
                 bloqueada, assinatura = assinatura_bloqueada(empresa)
                 request.billing_bloqueio = assinatura if bloqueada else None
-                request.billing_limites = avaliar_limites(empresa)
+                request.billing_limites = avaliar_limites_leve(empresa)
         return None

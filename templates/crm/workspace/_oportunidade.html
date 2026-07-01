@@ -1,0 +1,24 @@
+<section>
+    <h2>Oportunidade</h2>
+    <h3>Status da oportunidade</h3>
+    {% if oportunidade %}
+        <p>{{ oportunidade.titulo }} - {{ oportunidade.get_status_display }}</p>
+        <p>Status: {{ oportunidade.get_status_display }}</p>
+        <p>Valor: {{ oportunidade.valor_estimado }}</p>
+        <p>Probabilidade: {{ probabilidade }}</p>
+        <p>Dias parada: {{ dias_parada }}</p>
+        {% if score_comercial %}
+            <p>Score comercial: {{ score_comercial.score }}</p>
+        {% endif %}
+        <h3>Recomendacoes</h3>
+        <ul>
+            {% for recomendacao in recomendacoes_workspace %}
+                <li>{{ recomendacao.titulo }} - {{ recomendacao.motivo }}</li>
+            {% empty %}
+                <li>Nenhuma recomendacao para esta oportunidade.</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Nenhuma oportunidade aberta para este cliente.</p>
+    {% endif %}
+</section>

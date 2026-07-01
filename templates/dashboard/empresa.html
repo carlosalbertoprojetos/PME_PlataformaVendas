@@ -3,6 +3,66 @@
 {% block title %}Dashboard empresa{% endblock %}
 
 {% block content %}
-<h1>Dashboard empresa</h1>
+<section class="executive-hero">
+    <div class="hero-panel">
+        <h1 class="hero-title">Dashboard empresa</h1>
+        <p class="hero-copy">
+            Visao executiva da operacao comercial: receita, pedidos, oportunidades,
+            recomendacoes, proximas acoes, automacoes e saude do plano.
+        </p>
+    </div>
+    <div class="hero-panel">
+        {% include "components/_section_header.html" with title="Plano atual" subtitle=assinatura.get_status_display action_url="" action_label="" %}
+        <p class="item-title">{{ assinatura.plano.nome }}</p>
+        <p class="item-meta">Limites, usuarios e recursos do plano em uso.</p>
+        {% if membership.papel == "admin" %}
+            {% url 'billing:plano-admin' empresa.id as plano_url %}
+            {% include "components/_action_button.html" with href=plano_url label="Ver plano" variant="secondary" %}
+        {% endif %}
+    </div>
+</section>
+
 {% include "dashboard/_kpis.html" %}
+
+<div class="content-grid">
+    <div class="stack">
+        {% include "dashboard/_recomendacoes_acionaveis.html" with recomendacoes_acionaveis=recomendacoes_acionaveis %}
+        <section class="section-panel">
+            {% url 'crm:proxima-acao-list' empresa.id as agenda_url %}
+            {% include "components/_section_header.html" with title="Proximas acoes" subtitle="Agenda comercial mais urgente" action_url=agenda_url action_label="Abrir agenda" %}
+            <ul class="list-clean">
+                {% for acao in proximas_acoes_executivas %}
+                    <li class="item-row">
+                        <p class="item-title">{{ acao.descricao }}</p>
+                        <p class="item-meta">
+                            {{ acao.data_prevista }} - {{ acao.vendedor.username }}
+                            {% if acao.cliente %} - {{ acao.cliente.nome }}{% endif %}
+                        </p>
+                        {% include "components/_status_badge.html" with label=acao.get_status_display tone=acao.status %}
+                    </li>
+                {% empty %}
+                    <li>{% include "components/_empty_state.html" with title="Nenhuma proxima acao pendente" message="A agenda comercial esta sem pendencias imediatas." %}</li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% include "dashboard/_automacoes.html" with automacoes=automacoes %}
+    </div>
+
+    <div class="stack">
+        {% include "dashboard/_onboarding.html" with onboarding=onboarding %}
+        <section class="section-panel">
+            {% if membership.papel == "admin" %}
+                {% url 'billing:plano-admin' empresa.id as plano_limites_url %}
+                {% include "components/_section_header.html" with title="Limites de uso" subtitle="Sinais de upgrade e bloqueio suave" action_url=plano_limites_url action_label="Administrar" %}
+            {% else %}
+                {% include "components/_section_header.html" with title="Limites de uso" subtitle="Uso atual do plano" %}
+            {% endif %}
+            <div class="limit-list">
+                {% for recurso, limite in limites.items %}
+                    {% include "components/_limit_usage.html" with recurso=recurso limite=limite %}
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</div>
 {% endblock %}

@@ -5,7 +5,10 @@
 
 {% block content %}
 <h1>Catalogo</h1>
-<p><a href="{{ whatsapp_catalogo_url }}">Compartilhar catalogo</a></p>
+<form method="post" action="{{ whatsapp_catalogo_url }}">
+    {% csrf_token %}
+    <button type="submit">Compartilhar catalogo</button>
+</form>
 <ul>
     {% for produto in produtos %}
         <li>

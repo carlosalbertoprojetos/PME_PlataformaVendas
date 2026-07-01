@@ -1,0 +1,12 @@
+{% load whatsapp_links %}
+<section>
+    <h2>Cliente</h2>
+    <p>Nome: <strong>{{ cliente.nome }}</strong></p>
+    <p>Telefone: {{ cliente.telefone|default:"Nao informado" }}</p>
+    <p>Empresa: {{ empresa.nome }}</p>
+    <p>Ultimo contato: {{ ultimo_contato|default:"Nao registrado" }}</p>
+    <p>Ultima compra: {{ ultima_compra|default:"Nao registrada" }}</p>
+    <p>Ticket medio: {{ ticket_medio|default:"0.00" }}</p>
+    {% whatsapp_cliente cliente as cliente_whatsapp_url %}
+    <p><a href="{{ cliente_whatsapp_url }}">WhatsApp</a></p>
+</section>

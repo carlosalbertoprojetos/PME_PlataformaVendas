@@ -29,8 +29,16 @@ class InteligenciaComercialTests(TestCase):
             usuario=self.outro_usuario,
             papel=EmpresaMembership.Papel.VENDEDOR,
         )
-        self.cliente = Cliente.objects.create(empresa=self.empresa, nome="Cliente A")
-        self.cliente_antigo = Cliente.objects.create(empresa=self.empresa, nome="Cliente Antigo")
+        self.cliente = Cliente.objects.create(
+            empresa=self.empresa,
+            nome="Cliente A",
+            telefone="(11) 99999-0000",
+        )
+        self.cliente_antigo = Cliente.objects.create(
+            empresa=self.empresa,
+            nome="Cliente Antigo",
+            telefone="(11) 98888-0000",
+        )
         self.cliente_outra_empresa = Cliente.objects.create(
             empresa=self.outra_empresa,
             nome="Cliente B",
@@ -76,7 +84,7 @@ class InteligenciaComercialTests(TestCase):
         )
         self.oportunidade_sem_acao.criado_em = timezone.now() - timedelta(days=10)
         self.oportunidade_sem_acao.save(update_fields=["criado_em"])
-        pedido = Pedido.objects.create(
+        self.pedido = Pedido.objects.create(
             empresa=self.empresa,
             cliente=self.cliente,
             vendedor=self.usuario,
@@ -85,12 +93,12 @@ class InteligenciaComercialTests(TestCase):
             criado_em=timezone.now(),
         )
         PedidoItem.objects.create(
-            pedido=pedido,
+            pedido=self.pedido,
             produto=self.produto,
             quantidade=12,
             preco_unitario=Decimal("10.00"),
         )
-        pedido_antigo = Pedido.objects.create(
+        self.pedido_antigo = Pedido.objects.create(
             empresa=self.empresa,
             cliente=self.cliente_antigo,
             vendedor=self.usuario,
@@ -99,7 +107,7 @@ class InteligenciaComercialTests(TestCase):
             criado_em=timezone.now() - timedelta(days=60),
         )
         PedidoItem.objects.create(
-            pedido=pedido_antigo,
+            pedido=self.pedido_antigo,
             produto=self.produto,
             quantidade=1,
             preco_unitario=Decimal("10.00"),
@@ -159,6 +167,19 @@ class InteligenciaComercialTests(TestCase):
         self.assertNotIn("Produto Externo", texto)
         self.assertNotIn("Cliente B", texto)
 
+    def test_recomendacoes_possuem_campos_acionaveis(self):
+        recomendacoes = gerar_recomendacoes_comerciais(self.empresa)
+
+        alerta = recomendacoes["alertas_comerciais"][0]
+
+        self.assertIn("motivo", alerta)
+        self.assertIn("prioridade", alerta)
+        self.assertIn("entidade_relacionada", alerta)
+        self.assertIn("acao_recomendada", alerta)
+        self.assertIn("link_acao", alerta)
+        self.assertTrue(alerta["link_acao"])
+        self.assertTrue(alerta["acoes"])
+
     def test_dashboard_recomendacoes_renderiza_alertas(self):
         self.client.force_login(self.usuario)
 
@@ -171,6 +192,88 @@ class InteligenciaComercialTests(TestCase):
         self.assertContains(response, "Cliente Antigo")
         self.assertContains(response, "Oportunidade sem acao")
         self.assertNotContains(response, "Produto Externo")
+
+    def test_dashboard_empresa_renderiza_recomendacoes_acionaveis(self):
+        self.client.force_login(self.usuario)
+
+        response = self.client.get(reverse("dashboard:empresa", args=[self.empresa.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Recomendacoes acionaveis")
+        self.assertContains(response, "Oportunidade Quente")
+        self.assertContains(response, "Motivo:")
+        self.assertContains(response, "Prioridade:")
+        self.assertContains(response, "Entidade relacionada:")
+        self.assertContains(response, "Acao recomendada:")
+        self.assertContains(response, "Abrir oportunidade")
+        self.assertContains(response, "Enviar WhatsApp")
+        self.assertContains(response, "https://wa.me/11999990000?text=")
+        self.assertContains(
+            response,
+            reverse("crm:oportunidade-detail", args=[self.empresa.id, self.oportunidade.id]),
+        )
+        self.assertNotContains(response, "Produto Externo")
+
+    def test_links_de_acao_incluem_cliente_pedido_produto_oportunidade_e_proxima_acao(self):
+        self.client.force_login(self.usuario)
+
+        response = self.client.get(reverse("dashboard:recomendacoes", args=[self.empresa.id]))
+
+        self.assertContains(
+            response,
+            reverse("crm:cliente-detail", args=[self.empresa.id, self.cliente_antigo.id]),
+        )
+        self.assertContains(
+            response,
+            reverse("vendas:pedido-detail", args=[self.empresa.id, self.pedido_antigo.id]),
+        )
+        self.assertContains(
+            response,
+            reverse("catalogo:produto-detail", args=[self.empresa.id, self.produto.id]),
+        )
+        self.assertContains(
+            response,
+            reverse("crm:oportunidade-detail", args=[self.empresa.id, self.oportunidade.id]),
+        )
+        self.assertContains(
+            response,
+            reverse("crm:proxima-acao-create", args=[self.empresa.id])
+            + f"?cliente={self.cliente_antigo.id}&amp;oportunidade={self.oportunidade_sem_acao.id}",
+        )
+
+    def test_dashboard_empresa_nao_renderiza_recomendacoes_de_outra_empresa(self):
+        self.client.force_login(self.usuario)
+
+        response = self.client.get(reverse("dashboard:empresa", args=[self.empresa.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Produto Externo")
+        self.assertNotContains(response, "Cliente B")
+
+    def test_dashboard_nao_renderiza_whatsapp_com_telefone_invalido(self):
+        Cliente.objects.da_empresa(self.empresa).update(telefone="sem telefone")
+        self.client.force_login(self.usuario)
+
+        response = self.client.get(reverse("dashboard:empresa", args=[self.empresa.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Recomendacoes acionaveis")
+        self.assertNotContains(response, "Enviar WhatsApp")
+
+    def test_dashboard_empresa_sem_recomendacoes_exibe_estado_vazio(self):
+        empresa_vazia = Empresa.objects.create(nome="Empresa sem alertas")
+        usuario_vazio = User.objects.create_user("vazio", password="senha-segura")
+        EmpresaMembership.objects.create(
+            empresa=empresa_vazia,
+            usuario=usuario_vazio,
+            papel=EmpresaMembership.Papel.VENDEDOR,
+        )
+        self.client.force_login(usuario_vazio)
+
+        response = self.client.get(reverse("dashboard:empresa", args=[empresa_vazia.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Nenhuma recomendação crítica no momento")
 
     def test_dashboard_recomendacoes_bloqueia_empresa_sem_membership(self):
         self.client.force_login(self.usuario)

@@ -56,7 +56,7 @@ Regras:
 - conversao de lead cria cliente na mesma empresa;
 - oportunidades vinculam empresa, cliente e vendedor;
 - historicos apontam para cliente ou lead da mesma empresa;
-- proximas acoes apontam para oportunidade da mesma empresa;
+- proximas acoes apontam para cliente, oportunidade ou pedido da mesma empresa;
 - formularios filtram relacionamentos pela empresa atual.
 
 ### Vendas e KPIs
@@ -93,6 +93,18 @@ Regras:
 - middleware de billing so carrega limites quando o usuario tem membership ativa na empresa;
 - bloqueios por limite sao suaves e aplicados nos pontos de criacao existentes;
 - nao ha integracao com gateway nesta fase.
+
+### Eventos comerciais
+
+Os models `eventos.EventLog`, `eventos.AutomationRule` e `eventos.AutomationExecutionLog` registram eventos e automacoes por empresa.
+
+Regras:
+
+- todo evento persistido pertence obrigatoriamente a uma empresa;
+- toda regra e toda execucao de automacao pertencem obrigatoriamente a uma empresa;
+- timeline e analytics devem consultar eventos com filtro de empresa antes de filtrar entidade relacionada;
+- eventos nao substituem validacao de permissao nas views;
+- nao ha fila externa nesta fase, apenas dispatcher sincrono.
 
 ### Inteligencia comercial
 

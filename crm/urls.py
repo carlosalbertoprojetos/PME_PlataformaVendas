@@ -21,4 +21,6 @@ urlpatterns = [
     path("empresas/<int:empresa_id>/crm/historicos/novo/", views.HistoricoContatoCreateView.as_view(), name="historico-create"),
     path("empresas/<int:empresa_id>/crm/proximas-acoes/", views.ProximaAcaoListView.as_view(), name="proxima-acao-list"),
     path("empresas/<int:empresa_id>/crm/proximas-acoes/novo/", views.ProximaAcaoCreateView.as_view(), name="proxima-acao-create"),
+    path("empresas/<int:empresa_id>/crm/proximas-acoes/<int:pk>/editar/", views.ProximaAcaoUpdateView.as_view(), name="proxima-acao-update"),
+    path("empresas/<int:empresa_id>/crm/proximas-acoes/<int:pk>/concluir/", views.ProximaAcaoConcluirView.as_view(), name="proxima-acao-concluir"),
 ]

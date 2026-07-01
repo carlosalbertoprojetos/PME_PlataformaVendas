@@ -1,0 +1,14 @@
+<ul>
+    {% for acao in acoes %}
+        <li>
+            {{ acao.data_prevista }} - {{ acao.descricao }}
+            <a href="{% url 'crm:proxima-acao-update' empresa.id acao.id %}">Editar</a>
+            <form method="post" action="{% url 'crm:proxima-acao-concluir' empresa.id acao.id %}">
+                {% csrf_token %}
+                <button type="submit">Concluir</button>
+            </form>
+        </li>
+    {% empty %}
+        <li>{{ vazio }}</li>
+    {% endfor %}
+</ul>

@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
@@ -212,6 +213,22 @@ class ProximaAcao(models.Model):
         Oportunidade,
         on_delete=models.CASCADE,
         related_name="proximas_acoes",
+        blank=True,
+        null=True,
+    )
+    cliente = models.ForeignKey(
+        Cliente,
+        on_delete=models.CASCADE,
+        related_name="proximas_acoes",
+        blank=True,
+        null=True,
+    )
+    pedido = models.ForeignKey(
+        "vendas.Pedido",
+        on_delete=models.CASCADE,
+        related_name="proximas_acoes",
+        blank=True,
+        null=True,
     )
     vendedor = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -236,7 +253,11 @@ class ProximaAcao(models.Model):
         return self.descricao
 
     def clean(self):
-        from django.core.exceptions import ValidationError
-
+        if not self.cliente_id and not self.oportunidade_id and not self.pedido_id:
+            raise ValidationError("Informe cliente, oportunidade ou pedido.")
+        if self.cliente_id and self.cliente.empresa_id != self.empresa_id:
+            raise ValidationError("Cliente pertence a outra empresa.")
         if self.oportunidade_id and self.oportunidade.empresa_id != self.empresa_id:
             raise ValidationError("Oportunidade pertence a outra empresa.")
+        if self.pedido_id and self.pedido.empresa_id != self.empresa_id:
+            raise ValidationError("Pedido pertence a outra empresa.")

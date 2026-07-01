@@ -1,0 +1,13 @@
+<section class="section-panel" id="automacoes">
+    {% include "components/_section_header.html" with title="Automacoes comerciais" subtitle="Execucoes sincronas auditaveis de hoje" %}
+    <p class="item-meta">Automacoes executadas hoje: {{ automacoes.executadas_hoje }}</p>
+    <p class="item-meta">Sucesso: {{ automacoes.sucesso }}</p>
+    <p class="item-meta">Falhas: {{ automacoes.falhas }}</p>
+    <p class="item-meta">Tempo medio: {{ automacoes.tempo_medio_ms }} ms</p>
+    <div class="metric-grid">
+        {% include "components/_metric_card.html" with label="Automacoes executadas hoje" value=automacoes.executadas_hoje hint="Total do dia" %}
+        {% include "components/_metric_card.html" with label="Sucesso" value=automacoes.sucesso hint="Execucoes concluidas" %}
+        {% include "components/_metric_card.html" with label="Falhas" value=automacoes.falhas hint="Verificar regras" %}
+        {% include "components/_metric_card.html" with label="Tempo medio" value=automacoes.tempo_medio_ms hint="ms por execucao" %}
+    </div>
+</section>

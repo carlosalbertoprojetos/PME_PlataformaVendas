@@ -1,0 +1,13 @@
+<section>
+    <h2>Automacoes executadas</h2>
+    <ul>
+        {% for execucao in automacoes_cliente %}
+            <li>
+                {{ execucao.criado_em }} - {{ execucao.regra.nome }} -
+                {{ execucao.get_resultado_display }} - {{ execucao.evento.titulo }}
+            </li>
+        {% empty %}
+            <li>Nenhuma automacao executada para este cliente.</li>
+        {% endfor %}
+    </ul>
+</section>

@@ -1,0 +1,27 @@
+<section class="section-panel">
+    {% include "components/_section_header.html" with title="Onboarding operacional" subtitle="Ativacao da empresa" %}
+    <p>Progresso: {{ onboarding.progresso }}%</p>
+    <div class="progress-track" aria-label="Progresso de onboarding {{ onboarding.progresso }}%">
+        <div class="progress-fill" style="width: {{ onboarding.progresso }}%"></div>
+    </div>
+    {% if onboarding.empresa_ativada %}
+        <p>{% include "components/_status_badge.html" with label="Empresa ativada" tone="ok" %}</p>
+    {% else %}
+        <p>Conclua as etapas para ativar a empresa.</p>
+    {% endif %}
+    <ul class="list-clean">
+        {% for etapa in onboarding.etapas %}
+            <li class="item-row">
+                {% if etapa.concluida %}
+                    {% include "components/_status_badge.html" with label="Concluida" tone="concluida" %}
+                {% else %}
+                    {% include "components/_status_badge.html" with label="Pendente" tone="pendente" %}
+                {% endif %}
+                <span>{{ etapa.titulo }}</span>
+                {% if not etapa.concluida %}
+                    {% include "components/_action_button.html" with href=etapa.cta_url label=etapa.cta_label variant="secondary" %}
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+</section>

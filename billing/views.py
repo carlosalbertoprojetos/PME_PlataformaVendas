@@ -5,11 +5,13 @@ from django.views.generic import TemplateView
 
 from billing.forms import AssinaturaAdminForm
 from billing.services import avaliar_limites, get_assinatura_empresa
-from core.mixins import EmpresaRequiredMixin
+from core.mixins import EmpresaRoleRequiredMixin
+from empresas.models import EmpresaMembership
 
 
-class PlanoAdminView(EmpresaRequiredMixin, TemplateView):
+class PlanoAdminView(EmpresaRoleRequiredMixin, TemplateView):
     template_name = "billing/plano_admin.html"
+    allowed_roles = (EmpresaMembership.Papel.ADMIN,)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

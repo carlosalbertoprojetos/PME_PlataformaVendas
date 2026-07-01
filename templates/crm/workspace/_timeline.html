@@ -1,0 +1,10 @@
+<section>
+    <h2>Timeline</h2>
+    <ul>
+        {% for evento in timeline %}
+            <li>{{ evento.data }} - {{ evento.tipo }} - {{ evento.texto }}</li>
+        {% empty %}
+            <li>Nenhum evento registrado.</li>
+        {% endfor %}
+    </ul>
+</section>

@@ -1,0 +1,13 @@
+<section>
+    <h2>Inteligencia</h2>
+    <ul>
+        {% for alerta in alertas_workspace %}
+            <li>
+                {{ alerta.titulo }} - Prioridade: {{ alerta.prioridade }}<br>
+                Motivo: {{ alerta.motivo }}
+            </li>
+        {% empty %}
+            <li>Nenhum alerta para este cliente.</li>
+        {% endfor %}
+    </ul>
+</section>

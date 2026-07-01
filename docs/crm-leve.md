@@ -106,7 +106,9 @@ Model: `crm.ProximaAcao`
 Campos principais:
 
 - `empresa`
+- `cliente`
 - `oportunidade`
+- `pedido`
 - `vendedor`
 - `descricao`
 - `data_prevista`
@@ -116,7 +118,7 @@ Funcionalidades:
 
 - listagem por empresa;
 - cadastro por formulario Django;
-- oportunidade e vendedor filtrados pela empresa.
+- cliente, oportunidade, pedido e vendedor filtrados pela empresa.
 
 ## URLs
 

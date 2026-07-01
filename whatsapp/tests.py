@@ -6,7 +6,7 @@ from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
 from catalogo.models import Produto
-from crm.models import Cliente
+from crm.models import Cliente, Oportunidade
 from empresas.models import Empresa, EmpresaMembership
 from vendas.models import Pedido, PedidoItem
 from whatsapp.models import WhatsAppTemplateConfig
@@ -16,7 +16,10 @@ from whatsapp.services import (
     gerar_link_follow_up,
     gerar_link_pedido,
     gerar_link_produto,
+    gerar_link_recomendacao_whatsapp,
+    gerar_mensagem_recomendacao_whatsapp,
     gerar_wa_me_link,
+    telefone_whatsapp_valido,
 )
 
 
@@ -48,6 +51,20 @@ class WhatsAppLinkTests(TestCase):
             status=Pedido.Status.CONFIRMADO,
             valor_total=Decimal("39.80"),
         )
+        self.pedido_pendente = Pedido.objects.create(
+            empresa=self.empresa,
+            cliente=self.cliente,
+            vendedor=self.usuario,
+            status=Pedido.Status.PENDENTE,
+            valor_total=Decimal("59.70"),
+        )
+        self.oportunidade = Oportunidade.objects.create(
+            empresa=self.empresa,
+            cliente=self.cliente,
+            vendedor=self.usuario,
+            titulo="Oportunidade A",
+            valor_estimado=Decimal("1200.00"),
+        )
         PedidoItem.objects.create(
             pedido=self.pedido,
             produto=self.produto,
@@ -68,6 +85,106 @@ class WhatsAppLinkTests(TestCase):
 
         self.assertTrue(link.startswith("https://wa.me/5511999990000?text="))
         self.assertIn("Ola Cliente A!", unquote(link))
+
+    def test_recomendacao_whatsapp_nao_gera_link_para_telefone_invalido(self):
+        link = gerar_link_recomendacao_whatsapp(
+            {
+                "tipo": "cliente_sem_recompra",
+                "cliente": self.cliente,
+                "motivo": "cliente sem recompra",
+            },
+            telefone="abc",
+        )
+
+        self.assertFalse(telefone_whatsapp_valido("abc"))
+        self.assertEqual(link, "")
+
+    def test_recomendacao_whatsapp_gera_link_wa_me_codificado(self):
+        link = gerar_link_recomendacao_whatsapp(
+            {
+                "tipo": "cliente_sem_recompra",
+                "cliente": self.cliente,
+                "motivo": "cliente sem pedido confirmado nos ultimos 45 dias",
+            }
+        )
+
+        self.assertTrue(link.startswith("https://wa.me/11999990000?text="))
+        self.assertIn("Cliente A", unquote(urlparse(link).query))
+        self.assertIn("45 dias", unquote(urlparse(link).query))
+
+    def test_mensagens_por_tipo_de_recomendacao(self):
+        cenarios = [
+            (
+                {
+                    "tipo": "cliente_sem_recompra",
+                    "cliente": self.cliente,
+                    "motivo": "sem compra recente",
+                },
+                "Sentimos sua falta",
+            ),
+            (
+                {
+                    "tipo": "follow_up",
+                    "cliente": self.cliente,
+                    "oportunidade": self.oportunidade,
+                    "motivo": "oportunidade parada",
+                },
+                "dar continuidade",
+            ),
+            (
+                {
+                    "tipo": "pedido_pendente",
+                    "cliente": self.cliente,
+                    "pedido": self.pedido_pendente,
+                    "motivo": "pedido ainda pendente",
+                },
+                "esta pendente",
+            ),
+            (
+                {
+                    "tipo": "produto_recomendado",
+                    "cliente": self.cliente,
+                    "produto_nome": self.produto.nome,
+                    "motivo": "produto recomendado para recompra",
+                },
+                "recomendacao comercial",
+            ),
+            (
+                {
+                    "tipo": "alerta_oportunidade_quente",
+                    "cliente": self.cliente,
+                    "oportunidade": self.oportunidade,
+                    "motivo": "score alto",
+                },
+                "boa oportunidade",
+            ),
+        ]
+
+        for recomendacao, trecho in cenarios:
+            with self.subTest(tipo=recomendacao["tipo"]):
+                mensagem = gerar_mensagem_recomendacao_whatsapp(recomendacao)
+                self.assertIn("Cliente A", mensagem)
+                self.assertIn(trecho, mensagem)
+
+    def test_recomendacao_whatsapp_usa_apenas_cliente_da_recomendacao(self):
+        cliente_outra_empresa = Cliente.objects.create(
+            empresa=self.outra_empresa,
+            nome="Cliente B",
+            telefone="(21) 97777-0000",
+        )
+
+        link = gerar_link_recomendacao_whatsapp(
+            {
+                "tipo": "cliente_sem_recompra",
+                "cliente": self.cliente,
+                "motivo": "sem recompra",
+            }
+        )
+
+        mensagem = unquote(urlparse(link).query)
+        self.assertIn("Cliente A", mensagem)
+        self.assertNotIn(cliente_outra_empresa.nome, mensagem)
+        self.assertIn("wa.me/11999990000", link)
 
     def test_gerar_link_catalogo_usa_template_da_empresa(self):
         request = self.factory.get("/")
@@ -113,7 +230,18 @@ class WhatsAppLinkTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Compartilhar catalogo")
         self.assertContains(response, "Compartilhar produto")
-        self.assertContains(response, "wa.me")
+        self.assertContains(response, reverse("catalogo:catalogo-compartilhar", args=[self.empresa.id]))
+
+    def test_compartilhar_catalogo_registra_evento_apenas_por_post(self):
+        self.client.force_login(self.usuario)
+        url = reverse("catalogo:catalogo-compartilhar", args=[self.empresa.id])
+
+        get_response = self.client.get(url)
+        post_response = self.client.post(url)
+
+        self.assertEqual(get_response.status_code, 405)
+        self.assertEqual(post_response.status_code, 302)
+        self.assertIn("wa.me", post_response["Location"])
 
     def test_produto_renderiza_botao_de_compartilhamento(self):
         self.client.force_login(self.usuario)

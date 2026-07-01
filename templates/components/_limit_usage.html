@@ -1,0 +1,16 @@
+<div class="limit-row">
+    <div class="limit-row__top">
+        <strong>{{ recurso }}</strong>
+        <span>{{ limite.usado }}/{{ limite.limite }} - {{ limite.percentual }}%</span>
+    </div>
+    <div class="progress-track" aria-label="{{ recurso }} {{ limite.percentual }}%">
+        <div class="progress-fill" style="width: {{ limite.percentual }}%"></div>
+    </div>
+    {% if limite.atingido %}
+        {% include "components/_status_badge.html" with label="Limite atingido" tone="atingido" %}
+    {% elif limite.proximo_limite %}
+        {% include "components/_status_badge.html" with label="Proximo do limite" tone="proximo" %}
+    {% else %}
+        {% include "components/_status_badge.html" with label="Uso saudavel" tone="ok" %}
+    {% endif %}
+</div>

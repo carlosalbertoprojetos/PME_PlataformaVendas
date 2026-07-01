@@ -1,0 +1,22 @@
+<section class="section-panel">
+    {% include "components/_section_header.html" with title="Recomendacoes acionaveis" subtitle="Alertas comerciais com motivo auditavel" %}
+    <ul class="list-clean">
+        {% for recomendacao in recomendacoes_acionaveis %}
+            <li class="item-row">
+                <p class="item-title">{{ recomendacao.titulo }}</p>
+                <p class="item-meta">Motivo: {{ recomendacao.motivo }}</p>
+                <p class="item-meta">Prioridade: {{ recomendacao.prioridade }}</p>
+                <p class="item-meta">Entidade relacionada: {{ recomendacao.entidade_relacionada }}</p>
+                <p class="item-meta">Acao recomendada: {{ recomendacao.acao_recomendada }}</p>
+                {% include "components/_status_badge.html" with label=recomendacao.prioridade tone=recomendacao.prioridade %}
+                <div>
+                {% for acao in recomendacao.acoes %}
+                    {% include "components/_action_button.html" with href=acao.url label=acao.rotulo variant="secondary" %}
+                {% endfor %}
+                </div>
+            </li>
+        {% empty %}
+            <li>{% include "components/_empty_state.html" with title="Nenhuma recomendação crítica no momento" message="Quando houver risco comercial relevante, ele aparecera aqui." %}</li>
+        {% endfor %}
+    </ul>
+</section>

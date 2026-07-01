@@ -88,8 +88,12 @@ Recursos medidos:
 
 - usuarios ativos da empresa;
 - clientes ativos;
+- leads ativos;
 - produtos ativos;
-- pedidos no mes atual.
+- oportunidades abertas;
+- pedidos no mes atual;
+- recomendacoes comerciais;
+- workspace comercial.
 
 Helpers:
 
@@ -103,7 +107,9 @@ Helpers:
 Os limites sao aplicados de forma inicial nos pontos de criacao existentes:
 
 - criacao de produto;
-- criacao de cliente.
+- criacao de cliente;
+- criacao de lead;
+- criacao de oportunidade.
 
 Quando o limite esta atingido:
 
@@ -111,6 +117,8 @@ Quando o limite esta atingido:
 - cliente retorna o formulario com erro nao relacionado a campo.
 
 O layout base tambem exibe avisos quando `request.billing_limites` indica algum limite atingido ou quando `request.billing_bloqueio` indica assinatura suspensa/cancelada.
+
+Na evolucao SaaS, o layout tambem exibe aviso antes do limite e CTA de upgrade. Detalhes em `docs/monetizacao-saas.md`.
 
 ## Middleware
 

@@ -1,11 +1,31 @@
+import os
 from pathlib import Path
+
+from django.core.management.utils import get_random_secret_key
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "dev-only-change-me"
-DEBUG = True
-ALLOWED_HOSTS = ["*"]
+DJANGO_ENV = os.environ.get("DJANGO_ENV", "development")
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY") or get_random_secret_key()
+
+
+def env_bool(name, default=False):
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def env_list(name, default):
+    value = os.environ.get(name)
+    if not value:
+        return default
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
+DEBUG = env_bool("DJANGO_DEBUG", default=False)
+ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", ["localhost", "127.0.0.1", "testserver"])
 
 INSTALLED_APPS = [
     "django.contrib.auth",
@@ -21,6 +41,7 @@ INSTALLED_APPS = [
     "dashboard",
     "whatsapp",
     "billing",
+    "eventos.apps.EventosConfig",
 ]
 
 MIDDLEWARE = [

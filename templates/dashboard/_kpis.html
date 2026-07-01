@@ -1,39 +1,33 @@
-<section>
-    <h2>Indicadores principais</h2>
-    <dl>
-        <dt>Pedidos do dia</dt>
-        <dd>{{ kpis.pedidos_do_dia }}</dd>
-        <dt>Receita do mes</dt>
-        <dd>{{ kpis.receita_do_mes }}</dd>
-        <dt>Ticket medio</dt>
-        <dd>{{ kpis.ticket_medio }}</dd>
-        <dt>Pedidos pendentes</dt>
-        <dd>{{ kpis.pedidos_pendentes }}</dd>
-        <dt>Clientes ativos</dt>
-        <dd>{{ kpis.clientes_ativos }}</dd>
-        <dt>Oportunidades abertas</dt>
-        <dd>{{ kpis.oportunidades_abertas }}</dd>
-    </dl>
+<section class="section-panel" id="pedidos">
+    {% include "components/_section_header.html" with title="Indicadores principais" subtitle="KPIs comerciais para decisao diaria" %}
+    <div class="metric-grid">
+        {% include "components/_metric_card.html" with label="Pedidos do dia" value=kpis.pedidos_do_dia hint="Confirmados hoje" %}
+        {% include "components/_metric_card.html" with label="Receita do mes" value=kpis.receita_do_mes hint="Pedidos confirmados" %}
+        {% include "components/_metric_card.html" with label="Ticket medio" value=kpis.ticket_medio hint="Media mensal" %}
+        {% include "components/_metric_card.html" with label="Pedidos pendentes" value=kpis.pedidos_pendentes hint="Aguardando acao" %}
+        {% include "components/_metric_card.html" with label="Clientes ativos" value=kpis.clientes_ativos hint="Base comercial" %}
+        {% include "components/_metric_card.html" with label="Oportunidades abertas" value=kpis.oportunidades_abertas hint="Pipeline atual" %}
+    </div>
 </section>
 
-<section>
-    <h2>Produtos mais vendidos</h2>
-    <ul>
+<section class="section-panel">
+    {% include "components/_section_header.html" with title="Produtos mais vendidos" subtitle="Maiores saidas no mes" %}
+    <ul class="list-clean">
         {% for produto in kpis.produtos_mais_vendidos %}
-            <li>{{ produto.produto__nome }} - {{ produto.quantidade }}</li>
+            <li class="item-row">{{ produto.produto__nome }} - {{ produto.quantidade }}</li>
         {% empty %}
-            <li>Nenhum produto vendido no mes.</li>
+            <li>{% include "components/_empty_state.html" with title="Nenhum produto vendido no mes" message="As vendas confirmadas aparecerao aqui." %}</li>
         {% endfor %}
     </ul>
 </section>
 
-<section>
-    <h2>Vendedores com maior receita</h2>
-    <ul>
+<section class="section-panel">
+    {% include "components/_section_header.html" with title="Vendedores com maior receita" subtitle="Ranking mensal por receita confirmada" %}
+    <ul class="list-clean">
         {% for vendedor in kpis.vendedores_maior_receita %}
-            <li>{{ vendedor.vendedor__username }} - {{ vendedor.receita }}</li>
+            <li class="item-row">{{ vendedor.vendedor__username }} - {{ vendedor.receita }}</li>
         {% empty %}
-            <li>Nenhuma receita confirmada no mes.</li>
+            <li>{% include "components/_empty_state.html" with title="Nenhuma receita confirmada no mes" message="Os vendedores aparecerao aqui depois dos primeiros pedidos." %}</li>
         {% endfor %}
     </ul>
 </section>

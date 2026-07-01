@@ -1,0 +1,18 @@
+<section>
+    <h2>Pedidos</h2>
+    <h3>Carrinho/pedido</h3>
+    <p>Nenhum item em carrinho nesta fase.</p>
+    <p><span>Criar pedido indisponivel nesta fase</span></p>
+    <h3>Ultimos pedidos</h3>
+    <h3>Pedidos anteriores</h3>
+    <ul>
+        {% for pedido in pedidos_anteriores %}
+            <li>
+                Pedido #{{ pedido.id }} - Status: {{ pedido.get_status_display }} - Valor: {{ pedido.valor_total }}
+                <a href="{% url 'vendas:pedido-detail' empresa.id pedido.id %}">Abrir</a>
+            </li>
+        {% empty %}
+            <li>Nenhum pedido anterior.</li>
+        {% endfor %}
+    </ul>
+</section>

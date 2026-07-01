@@ -1,0 +1,12 @@
+<ul>
+    {% for acao in acoes %}
+        <li>
+            {{ acao.data_prevista }} - {{ acao.descricao }} - {{ acao.get_status_display }}
+            {% if acao.cliente %} - {{ acao.cliente.nome }}{% endif %}
+            {% if acao.oportunidade %} - {{ acao.oportunidade.titulo }}{% endif %}
+            {% if acao.pedido %} - Pedido #{{ acao.pedido.id }}{% endif %}
+        </li>
+    {% empty %}
+        <li>{{ vazio }}</li>
+    {% endfor %}
+</ul>

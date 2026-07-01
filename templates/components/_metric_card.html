@@ -1,0 +1,9 @@
+<article class="metric-card">
+    <div>
+        <span class="metric-card__label">{{ label }}</span>
+        <strong class="metric-card__value">{{ value }}</strong>
+    </div>
+    {% if hint %}
+        <span class="metric-card__hint">{{ hint }}</span>
+    {% endif %}
+</article>

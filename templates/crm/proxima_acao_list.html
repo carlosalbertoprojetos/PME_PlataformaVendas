@@ -1,15 +1,28 @@
 {% extends "base.html" %}
 
-{% block title %}Proximas acoes{% endblock %}
+{% block title %}Agenda comercial{% endblock %}
 
 {% block content %}
-<h1>Proximas acoes</h1>
+<h1>Agenda comercial</h1>
 <p><a href="{% url 'crm:proxima-acao-create' empresa.id %}">Nova proxima acao</a></p>
-<ul>
-    {% for acao in proximas_acoes %}
-        <li>{{ acao.data_prevista }} - {{ acao.descricao }} - {{ acao.oportunidade.titulo }}</li>
-    {% empty %}
-        <li>Nenhuma proxima acao cadastrada.</li>
-    {% endfor %}
-</ul>
+
+<section>
+    <h2>Acoes de hoje</h2>
+    {% include "crm/_proxima_acao_items.html" with acoes=acoes_hoje vazio="Nenhuma acao para hoje." %}
+</section>
+
+<section>
+    <h2>Atrasadas</h2>
+    {% include "crm/_proxima_acao_items.html" with acoes=acoes_atrasadas vazio="Nenhuma acao atrasada." %}
+</section>
+
+<section>
+    <h2>Proximas</h2>
+    {% include "crm/_proxima_acao_items.html" with acoes=acoes_proximas vazio="Nenhuma proxima acao pendente." %}
+</section>
+
+<section>
+    <h2>Concluidas</h2>
+    {% include "crm/_proxima_acao_items.html" with acoes=acoes_concluidas vazio="Nenhuma acao concluida." %}
+</section>
 {% endblock %}

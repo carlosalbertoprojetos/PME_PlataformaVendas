@@ -3,13 +3,15 @@ from decimal import Decimal, InvalidOperation
 
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.views import View
 from django.views.generic.detail import SingleObjectMixin
 
 from catalogo.models import Produto
 from billing.services import pode_criar_recurso
 from core.mixins import EmpresaRequiredMixin, EmpresaScopedQuerysetMixin
+from eventos.dispatcher import dispatch_event
+from eventos.events import DomainEvent, EventType
 from whatsapp.services import gerar_link_catalogo, gerar_link_produto
 
 
@@ -36,7 +38,7 @@ class ProdutoListCreateView(EmpresaRequiredMixin, View):
                 {
                     "empresa": self.empresa,
                     "produtos": produtos,
-                    "whatsapp_catalogo_url": gerar_link_catalogo(request, self.empresa),
+                    "whatsapp_catalogo_url": reverse_catalogo_compartilhar(self.empresa),
                 },
             )
         return JsonResponse({"results": [serialize_produto(produto) for produto in produtos]})
@@ -67,6 +69,30 @@ class ProdutoListCreateView(EmpresaRequiredMixin, View):
             return JsonResponse({"errors": exc.message_dict}, status=400)
 
         return JsonResponse(serialize_produto(produto), status=201)
+
+
+def reverse_catalogo_compartilhar(empresa):
+    from django.urls import reverse
+
+    return reverse("catalogo:catalogo-compartilhar", args=[empresa.id])
+
+
+class CatalogoCompartilharView(EmpresaRequiredMixin, View):
+    http_method_names = ["post"]
+
+    def post(self, request, *args, **kwargs):
+        dispatch_event(
+            DomainEvent(
+                tipo=EventType.CATALOGO_COMPARTILHADO,
+                empresa=self.empresa,
+                ator=request.user,
+                descricao=f"Catalogo da empresa {self.empresa.nome} compartilhado.",
+                entidade_tipo="empresa",
+                entidade_id=self.empresa.id,
+                payload={"canal": "whatsapp"},
+            )
+        )
+        return redirect(gerar_link_catalogo(request, self.empresa))
 
 
 class ProdutoDetailView(EmpresaScopedQuerysetMixin, SingleObjectMixin, View):
